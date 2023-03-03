@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
+* {
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  background: #353535;
+}
+
+.bar {
+  border-radius: 0.5em;
+  background: #284b63;
+  width: 20em;
+  height: 2em;
+  margin: 1em;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bar label {
+  z-index: 10;
+  text-color: #d9d9d9;
+}
+
+.bar .bar-inner {
+  z-index: 5;
+
+  border-radius: 0.5em;
+  background: #3c6e71;
+  height: 100%;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  transition: width 0.1s;
+}
