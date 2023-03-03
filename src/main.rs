@@ -1,14 +1,17 @@
+use std::convert::Infallible;
+
 use axum::{
     extract::{
         ws::{Message, WebSocket},
         State, WebSocketUpgrade,
     },
     http::Response,
-    response::{Html, IntoResponse},
+    response::{sse::Event, Html, IntoResponse, Sse},
     routing::get,
     Router, Server,
 };
 
+use futures::Stream;
 use sysinfo::{CpuExt, System, SystemExt};
 use tokio::sync::broadcast;
 
@@ -25,6 +28,7 @@ async fn main() {
         .route("/index.mjs", get(indexmjs_get))
         .route("/index.css", get(indexcss_get))
         .route("/realtime/cpus", get(realtime_cpus_get))
+        .route("/sse/cpus", get(sse_cpus_get))
         .with_state(app_state.clone());
 
     tokio::task::spawn_blocking(move || {
@@ -90,4 +94,19 @@ async fn realtime_cpus_stream(app_state: AppState, mut ws: WebSocket) {
         let payload = serde_json::to_string(&msg).unwrap();
         ws.send(Message::Text(payload)).await.unwrap();
     }
+}
+
+async fn sse_cpus_get(
+    State(app_state): State<AppState>,
+) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
+    let stream = async_stream::stream! {
+        let mut rx = app_state.tx.subscribe();
+        while let Ok(msg) = rx.recv().await {
+            let payload = serde_json::to_string(&msg).unwrap();
+            yield Ok(Event::default().data(payload));
+
+        }
+    };
+
+    Sse::new(stream)
 }

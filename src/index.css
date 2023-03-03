@@ -24,7 +24,7 @@ body {
 
 .bar label {
   z-index: 10;
-  text-color: #d9d9d9;
+  color: #d9d9d9;
 }
 
 .bar .bar-inner {
